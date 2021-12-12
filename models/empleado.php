@@ -1,0 +1,60 @@
+<?php
+
+class Empleado {
+
+   public $id;
+   public $nombre;
+   public $correo;
+
+   public function __construct($id, $nombre, $correo) {
+      $this->id = $id;
+      $this->nombre = $nombre;
+      $this->correo = $correo;
+   }
+
+   public static function consultar() {
+      $listaEmpleados = [];
+      $conexionBD = BD::crearInstancia();
+      $sql = $conexionBD->query("SELECT * FROM empleados");
+
+      foreach ($sql->fetchAll() as $empleado) {
+         $listaEmpleados[] = new Empleado($empleado['id'], $empleado['nombre'], $empleado['correo']);
+      }
+
+      return $listaEmpleados;
+
+   }
+
+   public static function crear($nombre, $correo) {
+
+         $conexionBD = BD::crearInstancia();
+
+         $sql = $conexionBD->prepare("INSERT INTO empleados(nombre, correo) VALUES (?, ?)");
+         $sql->execute([$nombre, $correo]);
+
+   }
+
+   public static function borrar($id) {
+      $conexionBD = BD::crearInstancia();
+      $sql = $conexionBD->prepare("DELETE FROM empleados WHERE id=?");
+      $sql->execute([$id]);
+   }
+
+   public static function buscar($id) {
+      $conexionBD = BD::crearInstancia();
+      $sql = $conexionBD->prepare("SELECT * FROM empleados WHERE id=?");
+      $sql->execute([$id]);
+      $empleado = $sql->fetch();
+      return new Empleado($empleado['id'], $empleado['nombre'], $empleado['correo']);
+   }
+
+   public static function editar($id, $nombre, $correo) {
+
+      $conexionBD = BD::crearInstancia();
+
+      $sql = $conexionBD->prepare("UPDATE empleados SET nombre=?, correo=? WHERE id=?");
+      $sql->execute([$nombre, $correo, $id]);
+         
+   }
+
+}
